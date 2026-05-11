@@ -1,0 +1,246 @@
+<html><head><style>body {
+   color: black;
+}
+</style></head><body><h1 id="sec-filing-sentiment-analyzer-html-">SEC Filing Sentiment Analyzer (HTML)</h1>
+<pre><code class="lang-html"><span class="hljs-meta">&lt;!DOCTYPE html&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"es"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"viewport"</span> <span class="hljs-attr">content</span>=<span class="hljs-string">"width=device-width, initial-scale=1.0"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>SEC Filing Sentiment Analyzer<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://cdn.tailwindcss.com"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+    <span class="hljs-selector-tag">body</span> {
+      <span class="hljs-attribute">background</span>: <span class="hljs-built_in">linear-gradient</span>(to bottom right, #0f172a, #1e293b);
+      <span class="hljs-attribute">min-height</span>: <span class="hljs-number">100vh</span>;
+    }
+  </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-white font-sans p-6"</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"max-w-5xl mx-auto"</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-center mb-8"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-4xl font-bold mb-3"</span>&gt;</span>SEC Filing Sentiment Analyzer<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-slate-300 text-lg"</span>&gt;</span>
+        Sube un archivo de la SEC (10-K, 10-Q, 8-K, etc.) y obtén un análisis básico de sentimiento.
+      <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bg-slate-800 rounded-2xl shadow-2xl p-6 border border-slate-700"</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"mb-6"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"block text-lg font-semibold mb-3"</span>&gt;</span>Subir archivo SEC<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">input</span>
+          <span class="hljs-attr">type</span>=<span class="hljs-string">"file"</span>
+          <span class="hljs-attr">id</span>=<span class="hljs-string">"fileInput"</span>
+          <span class="hljs-attr">accept</span>=<span class="hljs-string">".txt,.html,.htm"</span>
+          <span class="hljs-attr">class</span>=<span class="hljs-string">"w-full bg-slate-900 border border-slate-600 rounded-lg p-3"</span>
+        &gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"flex gap-4 mb-6 flex-wrap"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">button</span>
+          <span class="hljs-attr">onclick</span>=<span class="hljs-string">"analyzeFile()"</span>
+          <span class="hljs-attr">class</span>=<span class="hljs-string">"bg-emerald-500 hover:bg-emerald-600 transition px-6 py-3 rounded-xl font-semibold"</span>
+        &gt;</span>
+          Analizar Archivo
+        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-name">button</span>
+          <span class="hljs-attr">onclick</span>=<span class="hljs-string">"clearResults()"</span>
+          <span class="hljs-attr">class</span>=<span class="hljs-string">"bg-red-500 hover:bg-red-600 transition px-6 py-3 rounded-xl font-semibold"</span>
+        &gt;</span>
+          Limpiar
+        <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"results"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"hidden"</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"grid md:grid-cols-3 gap-4 mb-6"</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bg-slate-900 p-5 rounded-xl border border-slate-700"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-slate-400 text-sm uppercase mb-2"</span>&gt;</span>Sentimiento<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"sentimentLabel"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-2xl font-bold"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+          <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bg-slate-900 p-5 rounded-xl border border-slate-700"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-slate-400 text-sm uppercase mb-2"</span>&gt;</span>Puntaje<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"score"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-2xl font-bold"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+          <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bg-slate-900 p-5 rounded-xl border border-slate-700"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-slate-400 text-sm uppercase mb-2"</span>&gt;</span>Recomendación<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"recommendation"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-xl font-bold"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+          <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bg-slate-900 p-5 rounded-xl border border-slate-700 mb-6"</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-xl font-semibold mb-3"</span>&gt;</span>Resumen del análisis<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"summary"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-slate-300 leading-7"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bg-slate-900 p-5 rounded-xl border border-slate-700"</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-xl font-semibold mb-3"</span>&gt;</span>Palabras detectadas<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"grid md:grid-cols-2 gap-6"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">h3</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-emerald-400 font-semibold mb-2"</span>&gt;</span>Palabras positivas<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">ul</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"positiveWords"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"space-y-1 text-slate-300"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">h3</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"text-red-400 font-semibold mb-2"</span>&gt;</span>Palabras negativas<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">ul</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"negativeWords"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"space-y-1 text-slate-300"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+          <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"mt-8 bg-yellow-500/10 border border-yellow-500 rounded-xl p-5 text-yellow-200"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"font-bold mb-2"</span>&gt;</span>Aviso Importante<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
+        Este análisis es únicamente educativo e informativo. No constituye asesoría financiera ni recomendación oficial de inversión.
+        El modelo utiliza un análisis básico de palabras positivas y negativas dentro de documentos SEC.
+      <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+
+    <span class="hljs-keyword">const</span> positiveKeywords = [
+      <span class="hljs-string">"growth"</span>, <span class="hljs-string">"profit"</span>, <span class="hljs-string">"profits"</span>, <span class="hljs-string">"revenue"</span>, <span class="hljs-string">"strong"</span>, <span class="hljs-string">"improved"</span>,
+      <span class="hljs-string">"success"</span>, <span class="hljs-string">"opportunity"</span>, <span class="hljs-string">"expansion"</span>, <span class="hljs-string">"positive"</span>, <span class="hljs-string">"innovation"</span>,
+      <span class="hljs-string">"efficient"</span>, <span class="hljs-string">"increase"</span>, <span class="hljs-string">"gains"</span>, <span class="hljs-string">"record"</span>, <span class="hljs-string">"momentum"</span>, <span class="hljs-string">"leadership"</span>,
+      <span class="hljs-string">"stable"</span>, <span class="hljs-string">"resilient"</span>, <span class="hljs-string">"advantage"</span>
+    ];
+
+    <span class="hljs-keyword">const</span> negativeKeywords = [
+      <span class="hljs-string">"loss"</span>, <span class="hljs-string">"losses"</span>, <span class="hljs-string">"risk"</span>, <span class="hljs-string">"decline"</span>, <span class="hljs-string">"debt"</span>, <span class="hljs-string">"negative"</span>,
+      <span class="hljs-string">"weakness"</span>, <span class="hljs-string">"lawsuit"</span>, <span class="hljs-string">"uncertain"</span>, <span class="hljs-string">"bankruptcy"</span>, <span class="hljs-string">"volatility"</span>,
+      <span class="hljs-string">"drop"</span>, <span class="hljs-string">"decrease"</span>, <span class="hljs-string">"fraud"</span>, <span class="hljs-string">"litigation"</span>, <span class="hljs-string">"challenge"</span>, <span class="hljs-string">"concern"</span>,
+      <span class="hljs-string">"downturn"</span>, <span class="hljs-string">"inflation"</span>, <span class="hljs-string">"default"</span>
+    ];
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">analyzeFile</span>(<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">const</span> input = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'fileInput'</span>);
+      <span class="hljs-keyword">const</span> file = input.files[<span class="hljs-number">0</span>];
+
+      <span class="hljs-keyword">if</span> (!file) {
+        alert(<span class="hljs-string">'Por favor sube un archivo primero.'</span>);
+        <span class="hljs-keyword">return</span>;
+      }
+
+      <span class="hljs-keyword">const</span> reader = <span class="hljs-keyword">new</span> FileReader();
+
+      reader.onload = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
+        <span class="hljs-keyword">const</span> text = e.target.result.toLowerCase();
+
+        <span class="hljs-keyword">let</span> positiveCount = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">let</span> negativeCount = <span class="hljs-number">0</span>;
+
+        <span class="hljs-keyword">const</span> foundPositive = [];
+        <span class="hljs-keyword">const</span> foundNegative = [];
+
+        positiveKeywords.forEach(<span class="hljs-function"><span class="hljs-params">word</span> =&gt;</span> {
+          <span class="hljs-keyword">const</span> matches = (text.match(<span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(word, <span class="hljs-string">'g'</span>)) || []).length;
+          <span class="hljs-keyword">if</span> (matches &gt; <span class="hljs-number">0</span>) {
+            positiveCount += matches;
+            foundPositive.push(<span class="hljs-string">`<span class="hljs-subst">${word}</span> (<span class="hljs-subst">${matches}</span>)`</span>);
+          }
+        });
+
+        negativeKeywords.forEach(<span class="hljs-function"><span class="hljs-params">word</span> =&gt;</span> {
+          <span class="hljs-keyword">const</span> matches = (text.match(<span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(word, <span class="hljs-string">'g'</span>)) || []).length;
+          <span class="hljs-keyword">if</span> (matches &gt; <span class="hljs-number">0</span>) {
+            negativeCount += matches;
+            foundNegative.push(<span class="hljs-string">`<span class="hljs-subst">${word}</span> (<span class="hljs-subst">${matches}</span>)`</span>);
+          }
+        });
+
+        <span class="hljs-keyword">const</span> total = positiveCount + negativeCount;
+
+        <span class="hljs-keyword">let</span> score = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">if</span> (total &gt; <span class="hljs-number">0</span>) {
+          score = ((positiveCount - negativeCount) / total * <span class="hljs-number">100</span>).toFixed(<span class="hljs-number">2</span>);
+        }
+
+        <span class="hljs-keyword">let</span> sentiment = <span class="hljs-string">'Neutral'</span>;
+        <span class="hljs-keyword">let</span> recommendation = <span class="hljs-string">'Analizar más información'</span>;
+        <span class="hljs-keyword">let</span> color = <span class="hljs-string">'text-yellow-400'</span>;
+
+        <span class="hljs-keyword">if</span> (score &gt; <span class="hljs-number">15</span>) {
+          sentiment = <span class="hljs-string">'Positivo'</span>;
+          recommendation = <span class="hljs-string">'Podría valer la pena investigar esta inversión'</span>;
+          color = <span class="hljs-string">'text-emerald-400'</span>;
+        }
+
+        <span class="hljs-keyword">if</span> (score &lt; <span class="hljs-number">-15</span>) {
+          sentiment = <span class="hljs-string">'Negativo'</span>;
+          recommendation = <span class="hljs-string">'Se recomienda precaución'</span>;
+          color = <span class="hljs-string">'text-red-400'</span>;
+        }
+
+        <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'results'</span>).classList.remove(<span class="hljs-string">'hidden'</span>);
+
+        <span class="hljs-keyword">const</span> sentimentLabel = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'sentimentLabel'</span>);
+        sentimentLabel.textContent = sentiment;
+        sentimentLabel.className = <span class="hljs-string">`text-2xl font-bold <span class="hljs-subst">${color}</span>`</span>;
+
+        <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'score'</span>).textContent = <span class="hljs-string">`<span class="hljs-subst">${score}</span>%`</span>;
+        <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'recommendation'</span>).textContent = recommendation;
+
+        <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'summary'</span>).innerHTML = <span class="hljs-string">`
+          El archivo SEC contiene &lt;strong&gt;<span class="hljs-subst">${positiveCount}</span>&lt;/strong&gt; menciones positivas y
+          &lt;strong&gt;<span class="hljs-subst">${negativeCount}</span>&lt;/strong&gt; menciones negativas.
+          El análisis general del documento se clasifica como
+          &lt;strong&gt;<span class="hljs-subst">${sentiment}</span>&lt;/strong&gt;.
+        `</span>;
+
+        <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'positiveWords'</span>).innerHTML =
+          foundPositive.length &gt; <span class="hljs-number">0</span>
+            ? foundPositive.map(<span class="hljs-function"><span class="hljs-params">w</span> =&gt;</span> <span class="hljs-string">`&lt;li&gt;• <span class="hljs-subst">${w}</span>&lt;/li&gt;`</span>).join(<span class="hljs-string">''</span>)
+            : <span class="hljs-string">'&lt;li&gt;No se detectaron palabras positivas.&lt;/li&gt;'</span>;
+
+        <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'negativeWords'</span>).innerHTML =
+          foundNegative.length &gt; <span class="hljs-number">0</span>
+            ? foundNegative.map(<span class="hljs-function"><span class="hljs-params">w</span> =&gt;</span> <span class="hljs-string">`&lt;li&gt;• <span class="hljs-subst">${w}</span>&lt;/li&gt;`</span>).join(<span class="hljs-string">''</span>)
+            : <span class="hljs-string">'&lt;li&gt;No se detectaron palabras negativas.&lt;/li&gt;'</span>;
+      };
+
+      reader.readAsText(file);
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">clearResults</span>(<span class="hljs-params"></span>) </span>{
+      <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'results'</span>).classList.add(<span class="hljs-string">'hidden'</span>);
+      <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'fileInput'</span>).value = <span class="hljs-string">''</span>;
+    }
+
+  </span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<h2 id="c-mo-usarlo">Cómo usarlo</h2>
+<ol>
+<li>Guarda el archivo como <code>index.html</code></li>
+<li>Súbelo a tu repositorio de GitHub</li>
+<li>Activa GitHub Pages</li>
+<li>Abre el sitio y sube archivos SEC <code>.txt</code> o <code>.html</code></li>
+<li>El sistema analizará automáticamente el sentimiento del documento</li>
+</ol>
+<h2 id="ideas-para-mejorarlo-despu-s">Ideas para mejorarlo después</h2>
+<ul>
+<li>Integrar OpenAI API para análisis financiero más inteligente</li>
+<li>Detectar riesgos específicos (deuda, litigios, flujo de efectivo)</li>
+<li>Extraer automáticamente secciones como “Risk Factors”</li>
+<li>Mostrar gráficas de sentimiento</li>
+<li>Agregar soporte para PDFs SEC</li>
+<li>Conectar con la API EDGAR de la SEC</li>
+</ul>
+</body></html>

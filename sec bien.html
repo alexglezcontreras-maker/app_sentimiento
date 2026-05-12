@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEC Sentiment Analyzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e0a;
+    --surface: #111611;
+    --surface2: #161e16;
+    --border: #1e2d1e;
+    --border2: #2a3d2a;
+    --green: #00e676;
+    --green-dim: #1a3d1a;
+    --green-mid: #2d6b2d;
+    --red: #ff4444;
+    --red-dim: #3d1a1a;
+    --amber: #ffb300;
+    --amber-dim: #3d2d0a;
+    --text: #e8f5e8;
+    --muted: #6b8f6b;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,230,118,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,230,118,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 860px;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .logo-block {}
+  .logo-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    margin-bottom: .4rem;
+  }
+  h1 {
+    font-family: var(--sans);
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.05;
+    color: var(--text);
+  }
+  h1 span { color: var(--green); }
+
+  .badge-sec {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    margin-top: .5rem;
+  }
+  .badge-sec::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    display: block;
+  }
+
+  /* ── API Key ── */
+  .api-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .api-section > div { flex: 1; min-width: 200px; }
+  label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .5rem;
+  }
+  input[type="password"], input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s;
+  }
+  input:focus { border-color: var(--green); }
+  .hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: .4rem;
+  }
+  .hint a { color: var(--green); text-decoration: none; }
+
+  /* ── Upload zone ── */
+  .upload-zone {
+    border: 1px dashed var(--border2);
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--green); background: var(--green-dim); }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-icon {
+    width: 48px; height: 48px;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem;
+    background: var(--surface2);
+    font-size: 22px;
+  }
+  .upload-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: .4rem;
+  }
+  .upload-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .file-chosen {
+    margin-top: 1rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green);
+  }
+  .file-chosen.show { display: flex; }
+
+  /* ── Analyze button ── */
+  .btn-analyze {
+    width: 100%;
+    padding: 1rem;
+    background: var(--green);
+    color: #021002;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: .05em;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity .2s, transform .1s;
+    margin-bottom: 2rem;
+  }
+  .btn-analyze:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+  .btn-analyze:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+  /* ── Progress terminal ── */
+  .terminal {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    min-height: 80px;
+  }
+  .terminal.show { display: block; }
+  .terminal-line { display: flex; gap: 8px; margin-bottom: 4px; line-height: 1.6; }
+  .terminal-line .prompt { color: var(--green); flex-shrink: 0; }
+  .cursor { display: inline-block; width: 8px; height: 13px; background: var(--green); animation: blink 1s step-end infinite; vertical-align: text-bottom; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── Result card ── */
+  #result { display: none; }
+  #result.show { display: block; }
+
+  .verdict-banner {
+    border-radius: 14px;
+    padding: 2rem 2rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid;
+    position: relative;
+    overflow: hidden;
+  }
+  .verdict-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+  }
+  .verdict-banner.invest {
+    background: var(--green-dim);
+    border-color: var(--green-mid);
+  }
+  .verdict-banner.invest::before { background: var(--green); }
+  .verdict-banner.no-invest {
+    background: var(--red-dim);
+    border-color: #5a2020;
+  }
+  .verdict-banner.no-invest::before { background: var(--red); }
+  .verdict-banner.neutral {
+    background: var(--amber-dim);
+    border-color: #5a3d0a;
+  }
+  .verdict-banner.neutral::before { background: var(--amber); }
+
+  .verdict-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    margin-bottom: .6rem;
+  }
+  .invest .verdict-label { color: var(--green); }
+  .no-invest .verdict-label { color: var(--red); }
+  .neutral .verdict-label { color: var(--amber); }
+
+  .verdict-emoji { font-size: 2.5rem; line-height: 1; margin-bottom: .6rem; }
+
+  .verdict-title {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: .5rem;
+  }
+  .invest .verdict-title { color: var(--green); }
+  .no-invest .verdict-title { color: var(--red); }
+  .neutral .verdict-title { color: var(--amber); }
+
+  .verdict-sub {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── Score bar ── */
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .score-label { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .score-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; min-width: 100px; }
+  .score-bar { height: 100%; border-radius: 3px; transition: width 1s ease; }
+  .invest .score-bar { background: var(--green); }
+  .no-invest .score-bar { background: var(--red); }
+  .neutral .score-bar { background: var(--amber); }
+  .score-num { font-family: var(--mono); font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .invest .score-num { color: var(--green); }
+  .no-invest .score-num { color: var(--red); }
+  .neutral .score-num { color: var(--amber); }
+
+  /* ── Analysis sections ── */
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .a-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+  }
+  .a-card-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .75rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .a-card-title .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .dot-green { background: var(--green); }
+  .dot-red { background: var(--red); }
+  .dot-amber { background: var(--amber); }
+  .dot-muted { background: var(--muted); }
+
+  .a-card ul { list-style: none; }
+  .a-card li {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: #9ab89a;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    line-height: 1.5;
+  }
+  .a-card li:last-child { border-bottom: none; }
+  .a-card li::before { content: '›'; color: var(--muted); flex-shrink: 0; }
+
+  /* ── Narrative ── */
+  .narrative-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .narrative-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .75rem;
+  }
+  .narrative-text {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: #c4d4c4;
+    line-height: 1.8;
+  }
+
+  /* ── Key metrics ── */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: .75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .85rem 1rem;
+    text-align: center;
+  }
+  .metric-val {
+    font-family: var(--mono);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: .3rem;
+  }
+  .metric-lbl {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── Disclaimer ── */
+  .disclaimer {
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border-left: 2px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .disclaimer strong { color: var(--amber); }
+
+  /* ── Error ── */
+  .error-box {
+    display: none;
+    background: var(--red-dim);
+    border: 1px solid #5a2020;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--red);
+    margin-bottom: 1.5rem;
+  }
+  .error-box.show { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo-block">
+      <div class="logo-tag">⬡ Análisis de archivos SEC</div>
+      <h1>SEC <span>Sentiment</span><br>Analyzer</h1>
+      <div class="badge-sec">U.S. Securities and Exchange Commission · AI-Powered Analysis</div>
+    </div>
+  </header>
+
+  <!-- API Key -->
+  <div class="api-section">
+    <div>
+      <label for="apiKey">API Key de Anthropic</label>
+      <input type="password" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off">
+      <p class="hint">Obtén tu key en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> · No se guarda en ningún lado</p>
+    </div>
+  </div>
+
+  <!-- Upload -->
+  <div class="upload-zone" id="dropzone">
+    <input type="file" id="fileInput" accept=".pdf,.txt,.htm,.html">
+    <div class="upload-icon">📄</div>
+    <div class="upload-title">Sube tu archivo SEC</div>
+    <div class="upload-sub">10-K · 10-Q · 8-K · 20-F · DEF 14A · PDF · TXT · HTML<br>Arrastra aquí o haz clic para seleccionar</div>
+    <div class="file-chosen" id="fileChosen">✓ <span id="fileName"></span></div>
+  </div>
+
+  <!-- Button -->
+  <button class="btn-analyze" id="analyzeBtn" disabled onclick="analyze()">
+    Analizar sentimiento →
+  </button>
+
+  <!-- Terminal -->
+  <div class="terminal" id="terminal">
+    <div id="terminalLines"></div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- Result -->
+  <div id="result">
+
+    <div class="verdict-banner" id="verdictBanner">
+      <div class="verdict-label" id="verdictLabel"></div>
+      <div class="verdict-emoji" id="verdictEmoji"></div>
+      <div class="verdict-title" id="verdictTitle"></div>
+      <div class="verdict-sub" id="verdictSub"></div>
+      <div class="score-row">
+        <div class="score-label">Score de confianza</div>
+        <div class="score-bar-wrap"><div class="score-bar" id="scoreBar" style="width:0%"></div></div>
+        <div class="score-num" id="scoreNum"></div>
+      </div>
+    </div>
+
+    <div class="metrics-row" id="metricsRow"></div>
+
+    <div class="analysis-grid" id="analysisGrid"></div>
+
+    <div class="narrative-card">
+      <div class="narrative-title">// Análisis narrativo detallado</div>
+      <div class="narrative-text" id="narrativeText"></div>
+    </div>
+
+    <div class="disclaimer">
+      <strong>⚠ DISCLAIMER:</strong> Este análisis es generado por IA y tiene fines informativos únicamente.
+      No constituye asesoramiento financiero, legal o de inversión. Siempre consulta con un asesor
+      financiero certificado antes de tomar decisiones de inversión. El análisis de sentimiento
+      puede no reflejar todos los factores relevantes del mercado.
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const fileInput = document.getElementById('fileInput');
+const dropzone = document.getElementById('dropzone');
+const fileChosen = document.getElementById('fileChosen');
+const fileName = document.getElementById('fileName');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const apiKeyInput = document.getElementById('apiKey');
+
+let selectedFile = null;
+
+function checkReady() {
+  analyzeBtn.disabled = !(selectedFile && apiKeyInput.value.trim());
+}
+apiKeyInput.addEventListener('input', checkReady);
+
+fileInput.addEventListener('change', e => {
+  if (e.target.files[0]) {
+    selectedFile = e.target.files[0];
+    fileName.textContent = selectedFile.name;
+    fileChosen.classList.add('show');
+    checkReady();
+  }
+});
+
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) {
+    selectedFile = f;
+    fileName.textContent = f.name;
+    fileChosen.classList.add('show');
+    checkReady();
+  }
+});
+
+// Terminal log
+const termEl = document.getElementById('terminal');
+const termLines = document.getElementById('terminalLines');
+let cursorLine = null;
+
+function termLog(msg, final = false) {
+  if (cursorLine) cursorLine.remove();
+  const div = document.createElement('div');
+  div.className = 'terminal-line';
+  div.innerHTML = `<span class="prompt">$</span><span>${msg}</span>`;
+  termLines.appendChild(div);
+  if (!final) {
+    cursorLine = document.createElement('div');
+    cursorLine.className = 'terminal-line';
+    cursorLine.innerHTML = `<span class="prompt">$</span><span class="cursor"></span>`;
+    termLines.appendChild(cursorLine);
+  }
+}
+
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  box.textContent = '✗ ' + msg;
+  box.classList.add('show');
+  analyzeBtn.disabled = false;
+}
+
+async function readFile(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+      reader.onload = e => res({ type: 'pdf', data: e.target.result.split(',')[1] });
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    } else {
+      reader.onload = e => res({ type: 'text', data: e.target.result });
+      reader.onerror = rej;
+      reader.readAsText(file);
+    }
+  });
+}
+
+async function analyze() {
+  const apiKey = apiKeyInput.value.trim();
+  if (!apiKey || !selectedFile) return;
+
+  // Reset UI
+  analyzeBtn.disabled = true;
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('errorBox').classList.remove('show');
+  termLines.innerHTML = '';
+  cursorLine = null;
+  termEl.classList.add('show');
+
+  termLog('Leyendo archivo SEC...');
+  let fileContent;
+  try {
+    fileContent = await readFile(selectedFile);
+  } catch(e) {
+    showError('No se pudo leer el archivo: ' + e.message);
+    return;
+  }
+
+  termLog('Conectando con API de Anthropic...');
+
+  const SYSTEM = `Eres un analista financiero experto en documentos SEC (Securities and Exchange Commission) de Estados Unidos. 
+Tu tarea es analizar el sentimiento de archivos SEC como 10-K, 10-Q, 8-K, 20-F, DEF 14A y similares, y determinar si el documento indica perspectivas positivas o negativas para inversores.
+
+SIEMPRE responde ÚNICAMENTE con un objeto JSON válido, sin texto antes ni después, sin bloques de código markdown. El formato exacto es:
+
+{
+  "verdict": "INVERTIR" | "NO INVERTIR" | "CAUTELA",
+  "confidence": <número del 0 al 100>,
+  "sentiment_score": <número del -100 al 100, negativo=bearish, positivo=bullish>,
+  "emoji": "🟢" | "🔴" | "🟡",
+  "headline": "<frase corta y directa de máximo 8 palabras>",
+  "subheadline": "<frase de apoyo de máximo 12 palabras>",
+  "company": "<nombre de la empresa si se identifica, sino 'N/A'>",
+  "filing_type": "<tipo de documento SEC>",
+  "fiscal_period": "<periodo fiscal si aplica, sino 'N/A'>",
+  "metrics": [
+    { "label": "<etiqueta corta>", "value": "<valor o indicador>" },
+    { "label": "<etiqueta corta>", "value": "<valor o indicador>" },
+    { "label": "<etiqueta corta>", "value": "<valor o indicador>" },
+    { "label": "<etiqueta corta>", "value": "<valor o indicador>" }
+  ],
+  "positivos": ["<punto positivo 1>", "<punto positivo 2>", "<punto positivo 3>"],
+  "negativos": ["<punto negativo 1>", "<punto negativo 2>", "<punto negativo 3>"],
+  "riesgos": ["<riesgo 1>", "<riesgo 2>", "<riesgo 3>"],
+  "catalysts": ["<catalizador 1>", "<catalizador 2>"],
+  "narrative": "<análisis narrativo de 4-6 oraciones en español, explicando el razonamiento del veredicto con datos específicos del documento>"
+}`;
+
+  let messages;
+  if (fileContent.type === 'pdf') {
+    messages = [{
+      role: 'user',
+      content: [
+        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: fileContent.data } },
+        { type: 'text', text: 'Analiza este documento SEC y determina el sentimiento de inversión. Responde SOLO con el JSON solicitado.' }
+      ]
+    }];
+  } else {
+    const truncated = fileContent.data.slice(0, 80000);
+    messages = [{
+      role: 'user',
+      content: `Analiza este documento SEC:\n\n${truncated}\n\nResponde SOLO con el JSON solicitado.`
+    }];
+  }
+
+  termLog('Analizando sentimiento del documento...');
+
+  let data;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        system: SYSTEM,
+        messages
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    data = await res.json();
+  } catch(e) {
+    showError('Error de API: ' + e.message);
+    termEl.classList.remove('show');
+    return;
+  }
+
+  termLog('Procesando resultados...', false);
+
+  let raw = data.content?.map(b => b.text || '').join('').trim() || '';
+  // strip possible markdown fences
+  raw = raw.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch(e) {
+    showError('No se pudo parsear la respuesta. Intenta de nuevo.');
+    termEl.classList.remove('show');
+    return;
+  }
+
+  termEl.classList.remove('show');
+  renderResult(parsed);
+}
+
+function renderResult(d) {
+  const isGo   = d.verdict === 'INVERTIR';
+  const isStop  = d.verdict === 'NO INVERTIR';
+  const cls = isGo ? 'invest' : isStop ? 'no-invest' : 'neutral';
+
+  const banner = document.getElementById('verdictBanner');
+  banner.className = 'verdict-banner ' + cls;
+
+  document.getElementById('verdictLabel').textContent =
+    isGo ? '// Señal: ALCISTA · ' + d.filing_type :
+    isStop ? '// Señal: BAJISTA · ' + d.filing_type :
+    '// Señal: NEUTRAL · ' + d.filing_type;
+
+  document.getElementById('verdictEmoji').textContent = d.emoji || (isGo ? '🟢' : isStop ? '🔴' : '🟡');
+  document.getElementById('verdictTitle').textContent = d.verdict + (d.company && d.company !== 'N/A' ? ' — ' + d.company : '');
+  document.getElementById('verdictSub').textContent = d.headline + '. ' + d.subheadline;
+
+  const score = Math.max(0, Math.min(100, d.confidence || 50));
+  document.getElementById('scoreNum').textContent = score + '%';
+  setTimeout(() => { document.getElementById('scoreBar').style.width = score + '%'; }, 100);
+
+  // Metrics
+  const mr = document.getElementById('metricsRow');
+  mr.innerHTML = '';
+  const metrics = d.metrics || [];
+  const sentiment = { label: 'Sentimiento', value: (d.sentiment_score >= 0 ? '+' : '') + d.sentiment_score };
+  const period = d.fiscal_period && d.fiscal_period !== 'N/A' ? { label: 'Periodo', value: d.fiscal_period } : null;
+  const allMetrics = [...metrics].slice(0, 4);
+  if (allMetrics.length < 4 && sentiment) allMetrics.unshift(sentiment);
+  if (allMetrics.length < 4 && period) allMetrics.push(period);
+  allMetrics.forEach(m => {
+    mr.innerHTML += `<div class="metric"><div class="metric-val">${m.value}</div><div class="metric-lbl">${m.label}</div></div>`;
+  });
+
+  // Analysis cards
+  const grid = document.getElementById('analysisGrid');
+  grid.innerHTML = '';
+
+  const cards = [
+    { title: 'Factores positivos', dot: 'dot-green', items: d.positivos || [] },
+    { title: 'Factores negativos', dot: 'dot-red', items: d.negativos || [] },
+    { title: 'Riesgos clave', dot: 'dot-amber', items: d.riesgos || [] },
+    { title: 'Catalizadores', dot: 'dot-muted', items: d.catalysts || [] }
+  ];
+
+  cards.forEach(c => {
+    if (!c.items.length) return;
+    grid.innerHTML += `
+      <div class="a-card">
+        <div class="a-card-title"><span class="dot ${c.dot}"></span>${c.title}</div>
+        <ul>${c.items.map(i => `<li>${i}</li>`).join('')}</ul>
+      </div>`;
+  });
+
+  document.getElementById('narrativeText').textContent = d.narrative || '';
+
+  const resultEl = document.getElementById('result');
+  resultEl.classList.add('show');
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  analyzeBtn.disabled = false;
+}
+</script>
+</body>
+</html>
